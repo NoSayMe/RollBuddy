@@ -28,7 +28,8 @@ function RollBuddy:CreateMainWindow()
     frame.text = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     frame.text:SetPoint("TOPLEFT", 20, -40)
     frame.text:SetJustifyH("LEFT")
-    frame.text:SetText("Hello world window\n\nThis will become our roll game UI.")
+    frame.text:SetWidth(280)
+    frame.text:SetJustifyV("TOP")
 
     frame.resetButton = CreateFrame("Button", nil, frame, "GameMenuButtonTemplate")
     frame.resetButton:SetSize(120, 30)
@@ -47,6 +48,31 @@ function RollBuddy:CreateMainWindow()
     end)
 
     self.frame = frame
+    self:RefreshMainWindow()
+end
+
+function RollBuddy:RefreshMainWindow()
+    if not self.frame then
+        return
+    end
+
+    local lines = { "Current round rolls:" }
+    local playerNames = {}
+    for playerName in pairs(self.round.rolls) do
+        playerNames[#playerNames + 1] = playerName
+    end
+    table.sort(playerNames)
+
+    for _, playerName in ipairs(playerNames) do
+        local rollData = self.round.rolls[playerName]
+        lines[#lines + 1] = playerName .. ": " .. rollData.value .. " (" .. rollData.min .. "-" .. rollData.max .. ")"
+    end
+
+    if #playerNames == 0 then
+        lines[#lines + 1] = "No rolls yet. Ask players to /roll."
+    end
+
+    self.frame.text:SetText(table.concat(lines, "\n"))
 end
 
 function RollBuddy:ToggleWindow()
@@ -59,6 +85,7 @@ function RollBuddy:ToggleWindow()
         self:Print("Window hidden")
     else
         self.frame:Show()
+        self:RefreshMainWindow()
         self:Print("Window shown")
     end
 end
