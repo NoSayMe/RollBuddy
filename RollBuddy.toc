@@ -1,0 +1,12 @@
+## Interface: 20505
+## Title: RollBuddy
+## Notes: Starter roll game addon
+## Author: Juraj
+## Version: 0.0.1
+## SavedVariables: RollBuddyDB
+
+Core.lua
+Utils.lua
+Data.lua
+UI.lua
+Commands.lua
