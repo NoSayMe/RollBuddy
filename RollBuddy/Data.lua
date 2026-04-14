@@ -6,7 +6,34 @@ function RollBuddy:ResetRound()
     self.round.players = {}
     self.round.rolls = {}
     self.round.winner = nil
+
+    if IsInGroup() then
+        local channel = IsInRaid() and "RAID" or "PARTY"
+        SendChatMessage("RollBuddy round reset.", channel)
+    end
+
+    if self.RefreshMainWindow then
+        self:RefreshMainWindow()
+    end
+
     self:Print("Round reset")
+end
+
+function RollBuddy:AddRollFromChat(playerName, rollValue, minRoll, maxRoll)
+    if not playerName or not rollValue then
+        return
+    end
+
+    self.round.players[playerName] = true
+    self.round.rolls[playerName] = {
+        value = rollValue,
+        min = minRoll,
+        max = maxRoll,
+    }
+
+    if self.RefreshMainWindow then
+        self:RefreshMainWindow()
+    end
 end
 
 function RollBuddy:ListRanges()
