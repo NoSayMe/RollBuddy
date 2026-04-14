@@ -1,16 +1,6 @@
-RollBuddy.round = {
-    players = {},
-    rolls = {},
-    winner = nil,
-}
-
-RollBuddy.db.rollRanges = RollBuddy.db.rollRanges or {
-    { min = 1,   max = 40,  multiplier = 0 },
-    { min = 41,  max = 50,  multiplier = 1 },
-    { min = 51,  max = 80,  multiplier = 2 },
-    { min = 81,  max = 99,  multiplier = 3 },
-    { min = 100, max = 100, multiplier = 4 },
-}
+local function formatRange(range)
+    return range.min .. "-" .. range.max .. " => " .. range.multiplier .. "x"
+end
 
 function RollBuddy:ResetRound()
     self.round.players = {}
@@ -20,14 +10,14 @@ function RollBuddy:ResetRound()
 end
 
 function RollBuddy:ListRanges()
-    if not self.db.rollRanges or #self.db.rollRanges == 0 then
+    if #self.db.rollRanges == 0 then
         self:Print("No ranges configured.")
         return
     end
 
     self:Print("Configured ranges:")
     for i, range in ipairs(self.db.rollRanges) do
-        self:Print(i .. ". " .. range.min .. "-" .. range.max .. " => " .. range.multiplier .. "x")
+        self:Print(i .. ". " .. formatRange(range))
     end
 end
 
@@ -76,4 +66,14 @@ function RollBuddy:RemoveRange(index)
     if self.RefreshSettingsWindow then
         self:RefreshSettingsWindow()
     end
+end
+
+function RollBuddy:GetFormattedRanges()
+    local lines = { "Roll ranges:" }
+
+    for i, range in ipairs(self.db.rollRanges) do
+        lines[#lines + 1] = i .. ". " .. formatRange(range)
+    end
+
+    return lines
 end

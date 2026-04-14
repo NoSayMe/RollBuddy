@@ -2,19 +2,20 @@
 
 RollBuddy is a simple World of Warcraft addon for a rolling game with your group.
 
-This project is intentionally small and beginner-friendly. The current version is a working skeleton that includes:
-- core addon setup
+This project is intentionally small and beginner-friendly. The current version includes:
+- core addon setup and initialization
 - utility helpers
-- basic data handling
-- UI placeholders
-- slash command handling
+- game data/state operations
+- UI windows
+- slash command routing
 
 ## Project structure
 
-All addon files are now inside the `RollBuddy/` folder:
-- `RollBuddy.toc`
-- `Core.lua`
-- `Utils.lua`
-- `Data.lua`
-- `UI.lua`
-- `Commands.lua`
+All addon files are inside the `RollBuddy/` folder:
+
+- `RollBuddy.toc` — load order and addon metadata
+- `Core.lua` — addon bootstrap, defaults, and initialization
+- `Utils.lua` — shared helper utilities
+- `Data.lua` — runtime round state and range CRUD operations
+- `UI.lua` — main/settings window creation and refresh logic
+- `Commands.lua` — slash command parsing and dispatch table
