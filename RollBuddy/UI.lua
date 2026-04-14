@@ -1,11 +1,9 @@
-function RollBuddy:CreateMainWindow()
-    if self.frame then
-        return
-    end
+local unpackFn = unpack or table.unpack
 
-    local frame = CreateFrame("Frame", "RollBuddyMainFrame", UIParent, "BasicFrameTemplateWithInset")
-    frame:SetSize(320, 220)
-    frame:SetPoint("CENTER")
+local function createBaseFrame(name, title, width, height, point)
+    local frame = CreateFrame("Frame", name, UIParent, "BasicFrameTemplateWithInset")
+    frame:SetSize(width, height)
+    frame:SetPoint(unpackFn(point))
     frame:SetMovable(true)
     frame:EnableMouse(true)
     frame:RegisterForDrag("LeftButton")
@@ -15,7 +13,17 @@ function RollBuddy:CreateMainWindow()
 
     frame.title = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     frame.title:SetPoint("LEFT", frame.TitleBg, "LEFT", 8, 0)
-    frame.title:SetText("RollBuddy")
+    frame.title:SetText(title)
+
+    return frame
+end
+
+function RollBuddy:CreateMainWindow()
+    if self.frame then
+        return
+    end
+
+    local frame = createBaseFrame("RollBuddyMainFrame", "RollBuddy", 320, 220, { "CENTER" })
 
     frame.text = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     frame.text:SetPoint("TOPLEFT", 20, -40)
@@ -27,16 +35,15 @@ function RollBuddy:CreateMainWindow()
     frame.resetButton:SetPoint("BOTTOM", 0, 20)
     frame.resetButton:SetText("Reset")
     frame.resetButton:SetScript("OnClick", function()
-        RollBuddy:ResetRound()
+        self:ResetRound()
     end)
 
     frame.settingsButton = CreateFrame("Button", nil, frame, "GameMenuButtonTemplate")
     frame.settingsButton:SetSize(120, 30)
     frame.settingsButton:SetPoint("BOTTOM", 0, 55)
     frame.settingsButton:SetText("Settings")
-
     frame.settingsButton:SetScript("OnClick", function()
-        RollBuddy:ToggleSettingsWindow()
+        self:ToggleSettingsWindow()
     end)
 
     self.frame = frame
@@ -61,19 +68,13 @@ function RollBuddy:CreateSettingsWindow()
         return
     end
 
-    local frame = CreateFrame("Frame", "RollBuddySettingsFrame", UIParent, "BasicFrameTemplateWithInset")
-    frame:SetSize(360, 260)
-    frame:SetPoint("CENTER", UIParent, "CENTER", 40, -40)
-    frame:SetMovable(true)
-    frame:EnableMouse(true)
-    frame:RegisterForDrag("LeftButton")
-    frame:SetScript("OnDragStart", frame.StartMoving)
-    frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
-    frame:Hide()
-
-    frame.title = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    frame.title:SetPoint("LEFT", frame.TitleBg, "LEFT", 8, 0)
-    frame.title:SetText("RollBuddy Settings")
+    local frame = createBaseFrame(
+        "RollBuddySettingsFrame",
+        "RollBuddy Settings",
+        360,
+        260,
+        { "CENTER", UIParent, "CENTER", 40, -40 }
+    )
 
     frame.text = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     frame.text:SetPoint("TOPLEFT", 20, -40)
@@ -90,13 +91,7 @@ function RollBuddy:RefreshSettingsWindow()
         return
     end
 
-    local lines = { "Roll ranges:" }
-
-    for i, range in ipairs(self.db.rollRanges) do
-        lines[#lines + 1] = i .. ". " .. range.min .. "-" .. range.max .. " => " .. range.multiplier .. "x"
-    end
-
-    self.settingsFrame.text:SetText(table.concat(lines, "\n"))
+    self.settingsFrame.text:SetText(table.concat(self:GetFormattedRanges(), "\n"))
 end
 
 function RollBuddy:ToggleSettingsWindow()
@@ -113,4 +108,3 @@ function RollBuddy:ToggleSettingsWindow()
         self:Print("Settings shown")
     end
 end
-

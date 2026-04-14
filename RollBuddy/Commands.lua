@@ -1,29 +1,35 @@
-SLASH_ROLLBUDDY1 = "/rb"
-SlashCmdList["ROLLBUDDY"] = function(msg)
+local function tokenize(message)
     local args = {}
 
-    for word in string.gmatch(msg or "", "%S+") do
-        table.insert(args, word)
+    for word in string.gmatch(message or "", "%S+") do
+        args[#args + 1] = word
     end
 
-    local cmd = string.lower(args[1] or "")
+    return args
+end
 
-    if cmd == "" then
+local function printHelp()
+    RollBuddy:Print("Commands:")
+    RollBuddy:Print("/rb - toggle main window")
+    RollBuddy:Print("/rb settings - toggle settings window")
+    RollBuddy:Print("/rb list")
+    RollBuddy:Print("/rb add <min> <max> <multiplier>")
+    RollBuddy:Print("/rb edit <index> <min> <max> <multiplier>")
+    RollBuddy:Print("/rb remove <index>")
+    RollBuddy:Print("/rb debugdb")
+end
+
+local handlers = {
+    [""] = function()
         RollBuddy:ToggleWindow()
-        return
-    end
-
-    if cmd == "settings" then
+    end,
+    settings = function()
         RollBuddy:ToggleSettingsWindow()
-        return
-    end
-
-    if cmd == "list" then
+    end,
+    list = function()
         RollBuddy:ListRanges()
-        return
-    end
-
-    if cmd == "add" then
+    end,
+    add = function(args)
         local minRoll = tonumber(args[2])
         local maxRoll = tonumber(args[3])
         local multiplier = tonumber(args[4])
@@ -34,10 +40,8 @@ SlashCmdList["ROLLBUDDY"] = function(msg)
         end
 
         RollBuddy:AddRange(minRoll, maxRoll, multiplier)
-        return
-    end
-
-    if cmd == "edit" then
+    end,
+    edit = function(args)
         local index = tonumber(args[2])
         local minRoll = tonumber(args[3])
         local maxRoll = tonumber(args[4])
@@ -49,10 +53,8 @@ SlashCmdList["ROLLBUDDY"] = function(msg)
         end
 
         RollBuddy:EditRange(index, minRoll, maxRoll, multiplier)
-        return
-    end
-
-    if cmd == "remove" then
+    end,
+    remove = function(args)
         local index = tonumber(args[2])
 
         if not index then
@@ -61,26 +63,24 @@ SlashCmdList["ROLLBUDDY"] = function(msg)
         end
 
         RollBuddy:RemoveRange(index)
-        return
-    end
-
-    if cmd == "debugdb" then
+    end,
+    debugdb = function()
         RollBuddy:Print("DB table: " .. tostring(RollBuddy.db))
         RollBuddy:Print("rollRanges table: " .. tostring(RollBuddy.db.rollRanges))
-        RollBuddy:Print("Range count: " .. tostring(RollBuddy.db.rollRanges and #self.db.rollRanges or 0))
+        RollBuddy:Print("Range count: " .. tostring(#RollBuddy.db.rollRanges))
+    end,
+}
+
+SLASH_ROLLBUDDY1 = "/rb"
+SlashCmdList["ROLLBUDDY"] = function(msg)
+    local args = tokenize(msg)
+    local cmd = string.lower(args[1] or "")
+    local handler = handlers[cmd]
+
+    if not handler then
+        printHelp()
         return
     end
 
-    RollBuddy:Print("Commands:")
-    RollBuddy:Print("/rb - toggle main window")
-    RollBuddy:Print("/rb settings - toggle settings window")
-    RollBuddy:Print("/rb list")
-    RollBuddy:Print("/rb add <min> <max> <multiplier>")
-    RollBuddy:Print("/rb edit <index> <min> <max> <multiplier>")
-    RollBuddy:Print("/rb remove <index>")
+    handler(args)
 end
-
-RollBuddy:Print("Loaded: " .. tostring(RollBuddy.addonName))
-
-RollBuddy:Print("DB table: " .. tostring(RollBuddy.db))
-RollBuddy:Print("Range count: " .. tostring(RollBuddy.db.rollRanges and #RollBuddy.db.rollRanges or 0))
