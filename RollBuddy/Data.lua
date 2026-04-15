@@ -185,3 +185,47 @@ function RollBuddy:GetFormattedRanges()
 
     return lines
 end
+
+local function sortPlayerNames(players)
+    local names = {}
+    for playerName in pairs(players) do
+        names[#names + 1] = playerName
+    end
+    table.sort(names)
+    return names
+end
+
+function RollBuddy:GetStatisticsLines()
+    local lines = {
+        "Player statistics (skeleton):",
+        "Player | Games | Wins | Total",
+    }
+
+    local players = self.db.statistics.players or {}
+    local playerNames = sortPlayerNames(players)
+
+    if #playerNames == 0 then
+        lines[#lines + 1] = "No players tracked yet."
+        return lines
+    end
+
+    for _, playerName in ipairs(playerNames) do
+        local stats = players[playerName]
+        local games = tonumber(stats.games) or 0
+        local wins = tonumber(stats.wins) or 0
+        local totalValue = tonumber(stats.totalValue) or 0
+        lines[#lines + 1] = playerName .. " | " .. games .. " | " .. wins .. " | " .. totalValue
+    end
+
+    return lines
+end
+
+function RollBuddy:ResetStatistics()
+    self.db.statistics.players = {}
+
+    if self.RefreshStatisticsWindow then
+        self:RefreshStatisticsWindow()
+    end
+
+    self:Print("Statistics reset")
+end

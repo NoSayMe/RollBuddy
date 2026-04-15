@@ -7,6 +7,7 @@ RollBuddy.addonName = addonName
 RollBuddy.db = RollBuddyDB
 RollBuddy.frame = nil
 RollBuddy.settingsFrame = nil
+RollBuddy.statisticsFrame = nil
 RollBuddy.eventFrame = nil
 
 local DEFAULT_ROLL_RANGES = {
@@ -22,6 +23,26 @@ local DEFAULT_START_CONFIG = {
     say = true,
     general = false,
 }
+
+local function copyStatistics(statistics)
+    local copied = {
+        players = {},
+    }
+
+    if not statistics or type(statistics.players) ~= "table" then
+        return copied
+    end
+
+    for playerName, stats in pairs(statistics.players) do
+        copied.players[playerName] = {
+            games = tonumber(stats.games) or 0,
+            wins = tonumber(stats.wins) or 0,
+            totalValue = tonumber(stats.totalValue) or 0,
+        }
+    end
+
+    return copied
+end
 
 local function copyRanges(ranges)
     local copied = {}
@@ -47,6 +68,8 @@ function RollBuddy:InitializeDatabase()
     if self.db.startConfig.general == nil then
         self.db.startConfig.general = DEFAULT_START_CONFIG.general
     end
+
+    self.db.statistics = copyStatistics(self.db.statistics)
 end
 
 function RollBuddy:InitializeRuntimeState()
