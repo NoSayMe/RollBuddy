@@ -23,7 +23,7 @@ function RollBuddy:CreateMainWindow()
         return
     end
 
-    local frame = createBaseFrame("RollBuddyMainFrame", "RollBuddy", 320, 220, { "CENTER" })
+    local frame = createBaseFrame("RollBuddyMainFrame", "RollBuddy", 320, 260, { "CENTER" })
 
     frame.text = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     frame.text:SetPoint("TOPLEFT", 20, -40)
@@ -45,6 +45,14 @@ function RollBuddy:CreateMainWindow()
     frame.settingsButton:SetText("Settings")
     frame.settingsButton:SetScript("OnClick", function()
         self:ToggleSettingsWindow()
+    end)
+
+    frame.startButton = CreateFrame("Button", nil, frame, "GameMenuButtonTemplate")
+    frame.startButton:SetSize(120, 30)
+    frame.startButton:SetPoint("BOTTOM", 0, 90)
+    frame.startButton:SetText("Start")
+    frame.startButton:SetScript("OnClick", function()
+        self:StartRound()
     end)
 
     self.frame = frame
@@ -98,8 +106,8 @@ function RollBuddy:CreateSettingsWindow()
     local frame = createBaseFrame(
         "RollBuddySettingsFrame",
         "RollBuddy Settings",
-        360,
-        260,
+        380,
+        330,
         { "CENTER", UIParent, "CENTER", 40, -40 }
     )
 
@@ -107,7 +115,58 @@ function RollBuddy:CreateSettingsWindow()
     frame.text:SetPoint("TOPLEFT", 20, -40)
     frame.text:SetJustifyH("LEFT")
     frame.text:SetJustifyV("TOP")
-    frame.text:SetWidth(300)
+    frame.text:SetWidth(340)
+
+    frame.sayToggleButton = CreateFrame("Button", nil, frame, "GameMenuButtonTemplate")
+    frame.sayToggleButton:SetSize(160, 26)
+    frame.sayToggleButton:SetPoint("BOTTOMLEFT", 20, 55)
+    frame.sayToggleButton:SetScript("OnClick", function()
+        self:SetStartChannelEnabled("say", not self.db.startConfig.say)
+    end)
+
+    frame.generalToggleButton = CreateFrame("Button", nil, frame, "GameMenuButtonTemplate")
+    frame.generalToggleButton:SetSize(160, 26)
+    frame.generalToggleButton:SetPoint("BOTTOMRIGHT", -20, 55)
+    frame.generalToggleButton:SetScript("OnClick", function()
+        self:SetStartChannelEnabled("general", not self.db.startConfig.general)
+    end)
+
+    frame.startTextButton = CreateFrame("Button", nil, frame, "GameMenuButtonTemplate")
+    frame.startTextButton:SetSize(220, 26)
+    frame.startTextButton:SetPoint("BOTTOM", 0, 20)
+    frame.startTextButton:SetText("Set start message")
+    frame.startTextButton:SetScript("OnClick", function()
+        if not StaticPopupDialogs["ROLLBUDDY_SET_START_MESSAGE"] then
+            StaticPopupDialogs["ROLLBUDDY_SET_START_MESSAGE"] = {
+                text = "Enter start message",
+                button1 = "Save",
+                button2 = "Cancel",
+                hasEditBox = 1,
+                maxLetters = 255,
+                OnAccept = function(popupFrame)
+                    local value = popupFrame.editBox:GetText()
+                    self:SetStartMessage(value)
+                end,
+                EditBoxOnEnterPressed = function(editBox)
+                    local parent = editBox:GetParent()
+                    local value = editBox:GetText()
+                    self:SetStartMessage(value)
+                    parent:Hide()
+                end,
+                timeout = 0,
+                whileDead = true,
+                hideOnEscape = true,
+                preferredIndex = 3,
+            }
+        end
+
+        local dialog = StaticPopup_Show("ROLLBUDDY_SET_START_MESSAGE")
+        if dialog and dialog.editBox then
+            dialog.editBox:SetText(self:GetStartMessage())
+            dialog.editBox:HighlightText()
+            dialog.editBox:SetFocus()
+        end
+    end)
 
     self.settingsFrame = frame
     self:RefreshSettingsWindow()
@@ -118,7 +177,16 @@ function RollBuddy:RefreshSettingsWindow()
         return
     end
 
-    self.settingsFrame.text:SetText(table.concat(self:GetFormattedRanges(), "\n"))
+    local lines = self:GetFormattedRanges()
+    lines[#lines + 1] = ""
+    local startSettingsLines = self:GetFormattedStartSettings()
+    for _, line in ipairs(startSettingsLines) do
+        lines[#lines + 1] = line
+    end
+    self.settingsFrame.text:SetText(table.concat(lines, "\n"))
+
+    self.settingsFrame.sayToggleButton:SetText("Toggle /y: " .. (self.db.startConfig.say and "ON" or "OFF"))
+    self.settingsFrame.generalToggleButton:SetText("Toggle /1: " .. (self.db.startConfig.general and "ON" or "OFF"))
 end
 
 function RollBuddy:ToggleSettingsWindow()

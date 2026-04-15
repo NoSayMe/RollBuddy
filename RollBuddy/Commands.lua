@@ -16,6 +16,9 @@ local function printHelp()
     RollBuddy:Print("/rb add <min> <max> <multiplier>")
     RollBuddy:Print("/rb edit <index> <min> <max> <multiplier>")
     RollBuddy:Print("/rb remove <index>")
+    RollBuddy:Print("/rb start")
+    RollBuddy:Print("/rb setstart <text>")
+    RollBuddy:Print("/rb startchan <y|1|both|off>")
     RollBuddy:Print("/rb debugdb")
 end
 
@@ -63,6 +66,42 @@ local handlers = {
         end
 
         RollBuddy:RemoveRange(index)
+    end,
+    start = function()
+        RollBuddy:StartRound()
+    end,
+    setstart = function(args)
+        local text = table.concat(args, " ", 2)
+        if text == "" then
+            RollBuddy:Print("Usage: /rb setstart <text>")
+            return
+        end
+        RollBuddy:SetStartMessage(text)
+    end,
+    startchan = function(args)
+        local value = string.lower(args[2] or "")
+        if value == "y" or value == "/y" then
+            RollBuddy:SetStartChannelEnabled("say", true)
+            RollBuddy:SetStartChannelEnabled("general", false)
+            return
+        end
+        if value == "1" or value == "/1" then
+            RollBuddy:SetStartChannelEnabled("say", false)
+            RollBuddy:SetStartChannelEnabled("general", true)
+            return
+        end
+        if value == "both" then
+            RollBuddy:SetStartChannelEnabled("say", true)
+            RollBuddy:SetStartChannelEnabled("general", true)
+            return
+        end
+        if value == "off" then
+            RollBuddy:SetStartChannelEnabled("say", false)
+            RollBuddy:SetStartChannelEnabled("general", false)
+            return
+        end
+
+        RollBuddy:Print("Usage: /rb startchan <y|1|both|off>")
     end,
     debugdb = function()
         RollBuddy:Print("DB table: " .. tostring(RollBuddy.db))
