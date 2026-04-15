@@ -8,6 +8,7 @@ This project is intentionally small and beginner-friendly. The current version i
 - game data/state operations
 - UI windows
 - slash command routing
+- start button for broadcasting a configurable game info message to `/y`, `/1`, or both
 
 ## Project structure
 
