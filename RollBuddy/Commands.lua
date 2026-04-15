@@ -12,6 +12,7 @@ local function printHelp()
     RollBuddy:Print("Commands:")
     RollBuddy:Print("/rb - toggle main window")
     RollBuddy:Print("/rb settings - toggle settings window")
+    RollBuddy:Print("/rb stats - toggle statistics window")
     RollBuddy:Print("/rb list")
     RollBuddy:Print("/rb add <min> <max> <multiplier>")
     RollBuddy:Print("/rb edit <index> <min> <max> <multiplier>")
@@ -28,6 +29,9 @@ local handlers = {
     end,
     settings = function()
         RollBuddy:ToggleSettingsWindow()
+    end,
+    stats = function()
+        RollBuddy:ToggleStatisticsWindow()
     end,
     list = function()
         RollBuddy:ListRanges()

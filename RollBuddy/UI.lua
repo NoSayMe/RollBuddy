@@ -55,6 +55,14 @@ function RollBuddy:CreateMainWindow()
         self:StartRound()
     end)
 
+    frame.statisticsButton = CreateFrame("Button", nil, frame, "GameMenuButtonTemplate")
+    frame.statisticsButton:SetSize(120, 30)
+    frame.statisticsButton:SetPoint("BOTTOM", 0, 125)
+    frame.statisticsButton:SetText("Statistics")
+    frame.statisticsButton:SetScript("OnClick", function()
+        self:ToggleStatisticsWindow()
+    end)
+
     self.frame = frame
     self:RefreshMainWindow()
 end
@@ -201,5 +209,60 @@ function RollBuddy:ToggleSettingsWindow()
         self:RefreshSettingsWindow()
         self.settingsFrame:Show()
         self:Print("Settings shown")
+    end
+end
+
+function RollBuddy:CreateStatisticsWindow()
+    if self.statisticsFrame then
+        return
+    end
+
+    local frame = createBaseFrame(
+        "RollBuddyStatisticsFrame",
+        "RollBuddy Statistics",
+        420,
+        320,
+        { "CENTER", UIParent, "CENTER", -40, -40 }
+    )
+
+    frame.text = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    frame.text:SetPoint("TOPLEFT", 20, -40)
+    frame.text:SetJustifyH("LEFT")
+    frame.text:SetJustifyV("TOP")
+    frame.text:SetWidth(380)
+
+    frame.resetButton = CreateFrame("Button", nil, frame, "GameMenuButtonTemplate")
+    frame.resetButton:SetSize(160, 28)
+    frame.resetButton:SetPoint("BOTTOM", 0, 20)
+    frame.resetButton:SetText("Reset statistics")
+    frame.resetButton:SetScript("OnClick", function()
+        self:ResetStatistics()
+    end)
+
+    self.statisticsFrame = frame
+    self:RefreshStatisticsWindow()
+end
+
+function RollBuddy:RefreshStatisticsWindow()
+    if not self.statisticsFrame then
+        return
+    end
+
+    local lines = self:GetStatisticsLines()
+    self.statisticsFrame.text:SetText(table.concat(lines, "\n"))
+end
+
+function RollBuddy:ToggleStatisticsWindow()
+    if not self.statisticsFrame then
+        self:CreateStatisticsWindow()
+    end
+
+    if self.statisticsFrame:IsShown() then
+        self.statisticsFrame:Hide()
+        self:Print("Statistics hidden")
+    else
+        self:RefreshStatisticsWindow()
+        self.statisticsFrame:Show()
+        self:Print("Statistics shown")
     end
 end
