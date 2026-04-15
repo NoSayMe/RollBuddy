@@ -1,6 +1,6 @@
 local unpackFn = unpack or table.unpack
 
-local function createBaseFrame(name, title, width, height, point)
+local function createBaseFrame(owner, name, title, width, height, point)
     local frame = CreateFrame("Frame", name, UIParent, "BasicFrameTemplateWithInset")
     frame:SetSize(width, height)
     frame:SetPoint(unpackFn(point))
@@ -10,6 +10,21 @@ local function createBaseFrame(name, title, width, height, point)
     frame:SetScript("OnDragStart", frame.StartMoving)
     frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
     frame:Hide()
+    frame:EnableKeyboard(true)
+    frame:SetScript("OnKeyDown", function(currentFrame, key)
+        if key == "ESCAPE" then
+            owner:HideAllWindows()
+            if currentFrame.SetPropagateKeyboardInput then
+                currentFrame:SetPropagateKeyboardInput(false)
+            end
+            return
+        end
+
+        if currentFrame.SetPropagateKeyboardInput then
+            currentFrame:SetPropagateKeyboardInput(true)
+        end
+    end)
+    table.insert(UISpecialFrames, name)
 
     frame.title = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     frame.title:SetPoint("LEFT", frame.TitleBg, "LEFT", 8, 0)
@@ -23,7 +38,7 @@ function RollBuddy:CreateMainWindow()
         return
     end
 
-    local frame = createBaseFrame("RollBuddyMainFrame", "RollBuddy", 320, 260, { "CENTER" })
+    local frame = createBaseFrame(self, "RollBuddyMainFrame", "RollBuddy", 320, 260, { "CENTER" })
 
     frame.text = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     frame.text:SetPoint("TOPLEFT", 20, -40)
@@ -65,6 +80,20 @@ function RollBuddy:CreateMainWindow()
 
     self.frame = frame
     self:RefreshMainWindow()
+end
+
+function RollBuddy:HideAllWindows()
+    if self.frame then
+        self.frame:Hide()
+    end
+
+    if self.settingsFrame then
+        self.settingsFrame:Hide()
+    end
+
+    if self.statisticsFrame then
+        self.statisticsFrame:Hide()
+    end
 end
 
 function RollBuddy:RefreshMainWindow()
@@ -112,6 +141,7 @@ function RollBuddy:CreateSettingsWindow()
     end
 
     local frame = createBaseFrame(
+        self,
         "RollBuddySettingsFrame",
         "RollBuddy Settings",
         380,
@@ -218,6 +248,7 @@ function RollBuddy:CreateStatisticsWindow()
     end
 
     local frame = createBaseFrame(
+        self,
         "RollBuddyStatisticsFrame",
         "RollBuddy Statistics",
         420,
