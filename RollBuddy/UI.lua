@@ -38,7 +38,14 @@ function RollBuddy:CreateMainWindow()
         return
     end
 
-    local frame = createBaseFrame(self, "RollBuddyMainFrame", "RollBuddy", 320, 260, { "CENTER" })
+    local frame = createBaseFrame(
+        self,
+        "RollBuddyMainFrame",
+        "RollBuddy",
+        320,
+        260,
+        { "CENTER", UIParent, "CENTER", 180, -170 }
+    )
 
     frame.text = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     frame.text:SetPoint("TOPLEFT", 20, -40)
@@ -146,7 +153,7 @@ function RollBuddy:CreateSettingsWindow()
         "RollBuddy Settings",
         380,
         330,
-        { "CENTER", UIParent, "CENTER", 40, -40 }
+        { "CENTER", UIParent, "CENTER", 40, 140 }
     )
 
     frame.text = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -253,7 +260,7 @@ function RollBuddy:CreateStatisticsWindow()
         "RollBuddy Statistics",
         420,
         320,
-        { "CENTER", UIParent, "CENTER", -40, -40 }
+        { "CENTER", UIParent, "CENTER", -460, 140 }
     )
 
     frame.text = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
